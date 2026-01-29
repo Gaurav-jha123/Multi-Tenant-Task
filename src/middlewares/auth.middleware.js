@@ -18,7 +18,7 @@ module.exports = (req, res, next) => {
 
     req.user = {
       userId: payload.userId,
-      organizationId: payload.organizationId,
+      organizationId: payload.organizationId
     };
 
     next();

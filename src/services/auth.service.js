@@ -14,7 +14,7 @@ exports.registerUser = async({ email , password, organizationId }) => {
         throw new Error(`User already exists with ${email}`);
     }
 
-    const passwordHash = await bcrpyt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 10);
 
 
     const user = await userRepository.createUser({

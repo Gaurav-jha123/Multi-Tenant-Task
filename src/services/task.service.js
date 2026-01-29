@@ -1,10 +1,6 @@
 const taskRepository = require("../repositories/task.repository");
 
 exports.createTask = async ({ title, description, user }) => {
-  if (!title) {
-    throw new Error("Task title is required");
-  }
-
   return taskRepository.createTask({
     title,
     description,
@@ -13,34 +9,58 @@ exports.createTask = async ({ title, description, user }) => {
   });
 };
 
-exports.getTasks = async ({ user }) => {
-  return taskRepository.getTasksByOrganization(user.organizationId);
+exports.getTasks = async (user) => {
+  return taskRepository.listTasksByOrg(user.organizationId);
 };
 
-exports.updateTask = async ({ taskId, title, description, user }) => {
-  const task = await taskRepository.getTaskById(taskId);
+exports.getTaskById = async (taskId, user) => {
+  const task = await taskRepository.getTaskByIdAndOrg(
+    taskId,
+    user.organizationId
+  );
 
-  if (!task || task.organizationId !== user.organizationId) {
-    throw new Error("Task not found");
-  }
-
-  return taskRepository.updateTask({
-    id: taskId,
-    data: {
-      title,
-      description,
-    },
-  });
+  if (!task) throw new Error("Task not found");
+  return task;
 };
 
-exports.deleteTask = async ({ taskId, user }) => {
-  const task = await taskRepository.getTaskById(taskId);
+exports.updateTask = async (taskId, data, user) => {
+  const result = await taskRepository.updateTaskByIdAndOrg(
+    taskId,
+    user.organizationId,
+    data
+  );
 
-  if (!task || task.organizationId !== user.organizationId) {
-    throw new Error("Task not found");
-  }
-
-  await taskRepository.deleteTask(taskId);
+  //if (result.count === 0) throw new Error("Task not found");
+  return { success: true };
 };
 
+exports.updateTaskStatus = async ({ taskId, newStatus, user }) => {
+  const task = await taskRepository.getTaskByIdAndOrg(
+    taskId,
+    user.organizationId
+  );
 
+  if (!task) throw new Error("Task not found");
+  if (task.status === "COMPLETED")
+    throw new Error("Completed tasks cannot be updated");
+  if (newStatus !== "COMPLETED")
+    throw new Error("Invalid status transition");
+
+  await taskRepository.updateTaskByIdAndOrg(
+    taskId,
+    user.organizationId,
+    { status: newStatus }
+  );
+
+  return { success: true };
+};
+
+exports.deleteTask = async (taskId, user) => {
+  const result = await taskRepository.deleteTaskByIdAndOrg(
+    taskId,
+    user.organizationId
+  );
+
+  if (result.count === 0) throw new Error("Task not found");
+  return { success: true };
+};

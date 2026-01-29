@@ -1,43 +1,31 @@
 const prisma = require("../config/prisma");
 
-exports.createTask = async ({ title, description, organizationId, createdById }) => {
-  return prisma.task.create({
-    data: {
-      title,
-      description,
-      organizationId,
-      createdById,
-    },
+exports.createTask = (data) => {
+  return prisma.task.create({ data });
+};
+
+exports.getTaskByIdAndOrg = (taskId, organizationId) => {
+  return prisma.task.findFirst({
+    where: { id: taskId, organizationId },
   });
 };
 
-exports.getTasksByOrganization = async (organizationId) => {
+exports.listTasksByOrg = (organizationId) => {
   return prisma.task.findMany({
-    where: {
-      organizationId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+    where: { organizationId },
+    orderBy: { createdAt: "desc" },
   });
 };
 
-
-exports.getTaskById = async (id) => {
-  return prisma.task.findUnique({
-    where: { id },
-  });
-};
-
-exports.updateTask = async ({ id, data }) => {
-  return prisma.task.update({
-    where: { id },
+exports.updateTaskByIdAndOrg = (taskId, organizationId, data) => {
+  return prisma.task.updateMany({
+    where: { id: taskId, organizationId },
     data,
   });
 };
 
-exports.deleteTask = async (id) => {
-  return prisma.task.delete({
-    where: { id },
+exports.deleteTaskByIdAndOrg = (taskId, organizationId) => {
+  return prisma.task.deleteMany({
+    where: { id: taskId, organizationId },
   });
 };
