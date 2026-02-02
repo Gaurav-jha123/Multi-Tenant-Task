@@ -64,3 +64,27 @@ exports.deleteTask = async (taskId, user) => {
   if (result.count === 0) throw new Error("Task not found");
   return { success: true };
 };
+
+exports.getTasksPaginated = async ({ user, page, limit }) => {
+  const safeLimit = Math.min(limit || 20, 100);
+  const safePage = page && page > 0 ? page : 1;
+  const offset = (safePage - 1) * safeLimit;
+
+  const [tasks, total] = await Promise.all([
+    taskRepository.listTasksByOrgPaginated(
+      user.organizationId,
+      { offset, limit: safeLimit }
+    ),
+    taskRepository.countTasksByOrg(user.organizationId),
+  ]);
+
+  return {
+    data: tasks,
+    meta: {
+      page: safePage,
+      limit: safeLimit,
+      total,
+      totalPages: Math.ceil(total / safeLimit),
+    },
+  };
+};

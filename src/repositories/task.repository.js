@@ -29,3 +29,22 @@ exports.deleteTaskByIdAndOrg = (taskId, organizationId) => {
     where: { id: taskId, organizationId },
   });
 };
+
+
+exports.listTasksByOrgPaginated = (
+  organizationId,
+  { offset, limit }
+) => {
+  return prisma.task.findMany({
+    where: { organizationId },
+    orderBy: { createdAt: "desc" },
+    skip: offset,
+    take: limit,
+  });
+};
+
+exports.countTasksByOrg = (organizationId) => {
+  return prisma.task.count({
+    where: { organizationId },
+  });
+};

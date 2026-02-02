@@ -9,10 +9,10 @@ exports.createTask = async (req, res) => {
   res.status(201).json(task);
 };
 
-exports.getTasks = async (req, res) => {
-  const tasks = await taskService.getTasks(req.user);
-  res.json(tasks);
-};
+// exports.getTasks = async (req, res) => {
+//   const tasks = await taskService.getTasks(req.user);
+//   res.json(tasks);
+// };
 
 exports.getTaskById = async (req, res) => {
   const task = await taskService.getTaskById(req.params.id, req.user);
@@ -39,5 +39,18 @@ exports.updateTaskStatus = async (req, res) => {
 
 exports.deleteTask = async (req, res) => {
   const result = await taskService.deleteTask(req.params.id, req.user);
+  res.json(result);
+};
+
+exports.getTasks = async (req, res) => {
+  const page = Number(req.query.page);
+  const limit = Number(req.query.limit);
+
+  const result = await taskService.getTasksPaginated({
+    user: req.user,
+    page,
+    limit,
+  });
+
   res.json(result);
 };
